@@ -8,6 +8,10 @@
 
 import Foundation
 
+enum FlickrPhotoSearchError: Error {
+    case requestAlreadyInProgress
+}
+
 class FlickrPhotoSearchService: PhotoSearchService {
     
     // MARK: - PhotoSearchService
@@ -19,6 +23,12 @@ class FlickrPhotoSearchService: PhotoSearchService {
     internal var apiClient: APIClient = URLSessionAPIClient()
     
     func loadMoreResults(completion: @escaping (Result<[Photo], Error>) -> Void) {
+        guard requestInProgress == false else {
+            completion(.failure(FlickrPhotoSearchError.requestAlreadyInProgress))
+            return
+        }
+        
+        requestInProgress = true
         let requestUrl = url(for: currentPage)
         
         apiClient.performRequest(with: requestUrl) { [weak self] (data, error) in
@@ -33,6 +43,8 @@ class FlickrPhotoSearchService: PhotoSearchService {
                     completion(.failure(error))
                 }
             }
+            
+            self?.requestInProgress = false
         }
     }
     
@@ -41,6 +53,7 @@ class FlickrPhotoSearchService: PhotoSearchService {
     private let searchString: String
     private let itemsPerPage = 30
     private var currentPage = 1
+    private var requestInProgress = false
     
     private func url(for page: Int) -> URL {
         var urlComponents = URLComponents(string: "https://api.flickr.com/services/rest/")

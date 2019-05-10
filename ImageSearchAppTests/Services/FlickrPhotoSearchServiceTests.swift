@@ -57,6 +57,25 @@ class FlickrPhotoSearchServiceTests: XCTestCase {
         XCTAssertTrue(secondCalledURLString.contains("&page=1"))
     }
     
+    func testRequestThrottling() {
+        let service = FlickrPhotoSearchService(searchString: "test")
+        let mockApiClient = MockAPIClient()
+        service.apiClient = mockApiClient
+        
+        // Make first request
+        service.loadMoreResults { result in }
+        
+        // Making a second request before completion of first one being called
+        var serviceError: Error?
+        service.loadMoreResults { (result) in
+            if case let Result.failure(error) = result {
+                serviceError = error
+            }
+        }
+        
+        XCTAssertEqual(serviceError as! FlickrPhotoSearchError, .requestAlreadyInProgress)
+    }
+    
     private let rawJson =
     """
     {
