@@ -13,12 +13,15 @@ class PhotoCollectionViewCell: UICollectionViewCell {
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
+    private var currentURL: URL?
+    
     func setImageURL(url: URL) {
+        currentURL = url
         imageView.image = nil
         activityIndicator.startAnimating()
         
         ImageProvider.shared.image(for: url) { [weak self] (image, imageURL) in
-            guard url == imageURL else {
+            guard self?.currentURL == imageURL else {
                 return
             }
             

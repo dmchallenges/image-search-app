@@ -16,8 +16,12 @@ class FlickrPhotoSearchService: PhotoSearchService {
         self.searchString = searchString
     }
     
+    internal var apiClient: APIClient = URLSessionAPIClient()
+    
     func loadMoreResults(completion: @escaping (Result<[Photo], Error>) -> Void) {
-        urlSession.dataTask(with: urlFor(page: currentPage)) { [weak self] (data, _, error) in
+        let requestUrl = url(for: currentPage)
+        
+        apiClient.performRequest(with: requestUrl) { [weak self] (data, error) in
             if let error = error {
                 completion(.failure(error))
             } else if let data = data {
@@ -29,7 +33,7 @@ class FlickrPhotoSearchService: PhotoSearchService {
                     completion(.failure(error))
                 }
             }
-        }.resume()
+        }
     }
     
     // MARK: - Private
@@ -38,9 +42,7 @@ class FlickrPhotoSearchService: PhotoSearchService {
     private let itemsPerPage = 30
     private var currentPage = 1
     
-    private lazy var urlSession = URLSession(configuration: .default)
-    
-    private func urlFor(page: Int) -> URL {
+    private func url(for page: Int) -> URL {
         var urlComponents = URLComponents(string: "https://api.flickr.com/services/rest/")
         
         urlComponents?.queryItems = [
@@ -49,12 +51,11 @@ class FlickrPhotoSearchService: PhotoSearchService {
             URLQueryItem(name: "format", value: "json"),
             URLQueryItem(name: "safe_search", value: "1"),
             URLQueryItem(name: "text", value: searchString),
-            URLQueryItem(name: "page", value: String(currentPage)),
+            URLQueryItem(name: "page", value: String(page)),
             URLQueryItem(name: "per_page", value: String(itemsPerPage)),
             URLQueryItem(name: "nojsoncallback", value: "1")
         ]
         
         return urlComponents!.url!
     }
-    
 }

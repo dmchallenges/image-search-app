@@ -15,7 +15,7 @@ class PhotoSearchViewController: UIViewController {
     
     var service: PhotoSearchService?
     var photos: [Photo] = []
-    
+    let activityIndicator = UIActivityIndicatorView(style: .gray)
     let cellsPerRow: CGFloat = 3
     let cellsSpacing: CGFloat = 8
     
@@ -25,7 +25,10 @@ class PhotoSearchViewController: UIViewController {
         collectionView.dataSource = self
         collectionView.prefetchDataSource = self
         
-        if let flowLayout = self.collectionView.collectionViewLayout as? UICollectionViewFlowLayout {
+        activityIndicator.hidesWhenStopped = true
+        collectionView.backgroundView = activityIndicator
+        
+        if let flowLayout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout {
             let totalSpacing = (cellsPerRow - 1) * cellsSpacing
             let itemSize = floor((collectionView.bounds.width - totalSpacing) / cellsPerRow)
             
@@ -39,10 +42,9 @@ class PhotoSearchViewController: UIViewController {
         service?.loadMoreResults {[weak self] (result) in
             switch result {
             case .success(let newPhotos):
-                DispatchQueue.main.async {
-                    self?.photos += newPhotos
-                    self?.collectionView.reloadData()
-                }
+                self?.photos += newPhotos
+                self?.collectionView.reloadData()
+                self?.activityIndicator.stopAnimating()
             case .failure(let error):
                 print(error)
             }
@@ -53,6 +55,7 @@ class PhotoSearchViewController: UIViewController {
         service = FlickrPhotoSearchService(searchString: string)
         photos = []
         collectionView.reloadData()
+        activityIndicator.startAnimating()
         loadMoreResults()
     }
     
@@ -76,9 +79,9 @@ extension PhotoSearchViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PhotoCollectionViewCell", for: indexPath) as! PhotoCollectionViewCell
         cell.setImageURL(url: photos[indexPath.item].imageURL)
+
         return cell
     }
-    
 }
 
 extension PhotoSearchViewController: UICollectionViewDataSourcePrefetching {
