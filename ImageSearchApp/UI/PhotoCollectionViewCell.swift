@@ -13,7 +13,7 @@ class PhotoCollectionViewCell: UICollectionViewCell {
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
-    private var currentURL: URL?
+    static let identifier = "PhotoCollectionViewCell"
     
     func setImageURL(url: URL) {
         currentURL = url
@@ -30,4 +30,7 @@ class PhotoCollectionViewCell: UICollectionViewCell {
         }
     }
     
+    // MARK: - Private
+    
+    private var currentURL: URL?
 }

@@ -23,11 +23,16 @@ class PhotoSearchViewController: UIViewController {
         super.viewDidLoad()
         searchBar.delegate = self
         collectionView.dataSource = self
+        collectionView.delegate = self
         collectionView.prefetchDataSource = self
         
         activityIndicator.hidesWhenStopped = true
         collectionView.backgroundView = activityIndicator
         
+        configureFlowLayout()
+    }
+    
+    func configureFlowLayout() {
         if let flowLayout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout {
             let totalSpacing = (cellsPerRow - 1) * cellsSpacing
             let itemSize = floor((collectionView.bounds.width - totalSpacing) / cellsPerRow)
@@ -73,24 +78,46 @@ extension PhotoSearchViewController: UISearchBarDelegate {
 
 extension PhotoSearchViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return photos.count
+        return section == 0 ? photos.count : 1
+    }
+    
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        return photos.count > 0 ? 2 : 1
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PhotoCollectionViewCell", for: indexPath) as! PhotoCollectionViewCell
+        if indexPath.section == 1 {
+            return collectionView.dequeueReusableCell(withReuseIdentifier: LoadingCollectionViewCell.identifier, for: indexPath)
+        }
+        
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PhotoCollectionViewCell.identifier, for: indexPath) as! PhotoCollectionViewCell
         cell.setImageURL(url: photos[indexPath.item].imageURL)
 
         return cell
     }
 }
 
-extension PhotoSearchViewController: UICollectionViewDataSourcePrefetching {
-    func collectionView(_ collectionView: UICollectionView, prefetchItemsAt indexPaths: [IndexPath]) {
-        let lastItemPath = IndexPath(item: photos.count - 1, section: 0)
+extension PhotoSearchViewController: UICollectionViewDelegateFlowLayout {
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         
-        if indexPaths.contains(lastItemPath) {
+        if indexPath.section == 0, let flowLayout = collectionViewLayout as? UICollectionViewFlowLayout {
+            return flowLayout.itemSize
+        }
+        
+        return CGSize(width: view.bounds.width, height: 50)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        if indexPath.section == 1 {
             loadMoreResults()
         }
     }
 }
 
+extension PhotoSearchViewController: UICollectionViewDataSourcePrefetching {
+    func collectionView(_ collectionView: UICollectionView, prefetchItemsAt indexPaths: [IndexPath]) {
+        if indexPaths.first?.section == 1 {
+            loadMoreResults()
+        }
+    }
+}

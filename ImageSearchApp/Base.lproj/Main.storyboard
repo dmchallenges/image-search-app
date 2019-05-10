@@ -61,6 +61,27 @@
                                             <outlet property="imageView" destination="awE-Rw-UaG" id="FZi-jm-CUj"/>
                                         </connections>
                                     </collectionViewCell>
+                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="LoadingCollectionViewCell" id="j5d-A2-L0N" customClass="LoadingCollectionViewCell" customModule="ImageSearchApp" customModuleProvider="target">
+                                        <rect key="frame" x="145.5" y="8" width="107" height="107"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">
+                                            <rect key="frame" x="0.0" y="0.0" width="107" height="107"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" animating="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="Bnx-o0-fLv">
+                                                    <rect key="frame" x="43.5" y="43.5" width="20" height="20"/>
+                                                </activityIndicatorView>
+                                            </subviews>
+                                        </view>
+                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <constraints>
+                                            <constraint firstItem="Bnx-o0-fLv" firstAttribute="centerX" secondItem="j5d-A2-L0N" secondAttribute="centerX" id="2oi-Gw-KaN"/>
+                                            <constraint firstItem="Bnx-o0-fLv" firstAttribute="centerY" secondItem="j5d-A2-L0N" secondAttribute="centerY" id="rAk-XQ-zeT"/>
+                                        </constraints>
+                                        <connections>
+                                            <outlet property="activityIndicator" destination="Bnx-o0-fLv" id="XBk-KX-j5t"/>
+                                        </connections>
+                                    </collectionViewCell>
                                 </cells>
                             </collectionView>
                         </subviews>
